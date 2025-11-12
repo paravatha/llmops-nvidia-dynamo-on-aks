@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: dynamo-prefill-worker-metrics
+  namespace: prometheus
+  labels:
+    app: dynamo-prefill-worker-metrics
+    release: kube-prometheus-stack   # This value can differ according to your Prometheus installation.
+spec:
+  selector:
+    matchLabels:
+      nvidia.com/dynamo-component: "VllmPrefillWorker"
+  podMetricsEndpoints:
+    - port: http
+      path: /metrics
+      interval: 2s
+  namespaceSelector:
+    matchNames:
+      - dynamo-cloud

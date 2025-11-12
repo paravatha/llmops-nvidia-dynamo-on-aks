@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vllm-agg-router-pvc
+  labels:
+    app.kubernetes.io/name: vllm-agg-router-pvc
+spec:
+  accessModes:
+    - "ReadWriteMany"
+  storageClassName: azurefile
+  resources:
+    requests:
+      storage: 100Gi

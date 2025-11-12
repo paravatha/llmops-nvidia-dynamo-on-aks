@@ -1,0 +1,76 @@
+# Prometheus Tolerations and Affinity Patch
+# This file contains tolerations and affinity configuration for Prometheus components
+
+# Prometheus Server tolerations and affinity
+prometheus:
+  prometheusSpec:
+    tolerations:
+    - key: "nims/node-type"
+      operator: "Equal"
+      value: "gpu"
+      effect: "NoSchedule"
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodepool
+              operator: In
+              values:
+              - h100
+
+# Prometheus Operator tolerations and affinity
+prometheusOperator:
+  tolerations:
+  - key: "nims/node-type"
+    operator: "Equal"
+    value: "gpu"
+    effect: "NoSchedule"
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+          - key: nodepool
+            operator: In
+            values:
+            - h100
+
+# Grafana tolerations and affinity
+grafana:
+  tolerations:
+  - key: "nims/node-type"
+    operator: "Equal"
+    value: "gpu"
+    effect: "NoSchedule"
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+          - key: nodepool
+            operator: In
+            values:
+            - h100
+
+# Alertmanager tolerations and affinity
+alertmanager:
+  alertmanagerSpec:
+    tolerations:
+    - key: "nims/node-type"
+      operator: "Equal"
+      value: "gpu"
+      effect: "NoSchedule"
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodepool
+              operator: In
+              values:
+              - h100

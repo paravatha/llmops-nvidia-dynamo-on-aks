@@ -1,0 +1,15 @@
+jupyterlab==4.3.4
+jupyterlab-code-formatter
+black
+yapf
+isort
+autopep8
+huggingface_hub
+minio
+ai-dynamo[all]==0.4.0
+genai-perf==0.0.13
+aiofiles
+kubernetes_asyncio
+matplotlib
+pandas
+numpy

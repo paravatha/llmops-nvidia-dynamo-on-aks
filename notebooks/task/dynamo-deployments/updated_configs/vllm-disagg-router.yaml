@@ -1,0 +1,223 @@
+apiVersion: nvidia.com/v1alpha1
+kind: DynamoGraphDeployment
+metadata:
+  name: vllm-disagg-router
+spec:
+  services:
+    Frontend:
+      componentType: main
+      dynamoNamespace: vllm-disagg-router
+      extraPodSpec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: nodepool
+                  operator: In
+                  values:
+                  - h100
+        mainContainer:
+          args:
+          - python3 -m dynamo.frontend --http-port 8000 --router-mode kv
+          command:
+          - /bin/sh
+          - -c
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:0.5.0
+          ports:
+          - containerPort: 8000
+            name: http
+          workingDir: /workspace/components/backends/vllm
+        tolerations:
+        - effect: NoSchedule
+          key: nims/node-type
+          operator: Equal
+          value: gpu
+      livenessProbe:
+        failureThreshold: 10
+        httpGet:
+          path: /health
+          port: 8000
+        initialDelaySeconds: 60
+        periodSeconds: 60
+        timeoutSeconds: 30
+      readinessProbe:
+        exec:
+          command:
+          - /bin/sh
+          - -c
+          - curl -s http://localhost:8000/health | jq -e ".status == \"healthy\""
+        failureThreshold: 10
+        initialDelaySeconds: 60
+        periodSeconds: 60
+        timeoutSeconds: 30
+      replicas: 1
+      resources:
+        limits:
+          cpu: '1'
+          memory: 2Gi
+        requests:
+          cpu: '1'
+          memory: 2Gi
+    VllmDecodeWorker:
+      componentType: worker
+      dynamoNamespace: vllm-disagg-router
+      envFromSecret: hf-token-secret
+      envs:
+      - name: DYN_SYSTEM_ENABLED
+        value: 'true'
+      - name: DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS
+        value: '["generate"]'
+      - name: DYN_SYSTEM_PORT
+        value: '9090'
+      - name: DYN_LOG
+        value: debug
+      - name: HF_HOME
+        value: /workspace/models
+      - name: TRANSFORMERS_CACHE
+        value: /workspace/models
+      extraPodSpec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: nodepool
+                  operator: In
+                  values:
+                  - h100
+        mainContainer:
+          args:
+          - python3 -m dynamo.vllm --model Qwen/Qwen2.5-7B-Instruct-GPTQ-Int4 2>&1
+            | tee /tmp/vllm.log
+          command:
+          - /bin/sh
+          - -c
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:0.5.0
+          ports:
+          - containerPort: 9090
+            name: http
+          startupProbe:
+            failureThreshold: 200
+            httpGet:
+              path: /health
+              port: 9090
+            periodSeconds: 10
+          volumeMounts:
+          - mountPath: /workspace/models
+            name: model-storage
+          workingDir: /workspace/components/backends/vllm
+        tolerations:
+        - effect: NoSchedule
+          key: nims/node-type
+          operator: Equal
+          value: gpu
+        volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: vllm-disagg-router-pvc
+      livenessProbe:
+        failureThreshold: 200
+        httpGet:
+          path: /live
+          port: 9090
+        periodSeconds: 5
+        timeoutSeconds: 30
+      readinessProbe:
+        failureThreshold: 200
+        httpGet:
+          path: /health
+          port: 9090
+        periodSeconds: 10
+        timeoutSeconds: 30
+      replicas: 2
+      resources:
+        limits:
+          cpu: '10'
+          gpu: '1'
+          memory: 20Gi
+        requests:
+          cpu: '10'
+          gpu: '1'
+          memory: 20Gi
+    VllmPrefillWorker:
+      componentType: worker
+      dynamoNamespace: vllm-disagg-router
+      envFromSecret: hf-token-secret
+      envs:
+      - name: DYN_SYSTEM_ENABLED
+        value: 'true'
+      - name: DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS
+        value: '["generate"]'
+      - name: DYN_SYSTEM_PORT
+        value: '9090'
+      - name: DYN_LOG
+        value: debug
+      - name: HF_HOME
+        value: /workspace/models
+      - name: TRANSFORMERS_CACHE
+        value: /workspace/models
+      extraPodSpec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: nodepool
+                  operator: In
+                  values:
+                  - h100
+        mainContainer:
+          args:
+          - python3 -m dynamo.vllm --model Qwen/Qwen2.5-7B-Instruct-GPTQ-Int4 --is-prefill-worker
+            2>&1 | tee /tmp/vllm.log
+          command:
+          - /bin/sh
+          - -c
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:0.5.0
+          ports:
+          - containerPort: 9090
+            name: http
+          startupProbe:
+            failureThreshold: 200
+            httpGet:
+              path: /health
+              port: 9090
+            periodSeconds: 10
+          volumeMounts:
+          - mountPath: /workspace/models
+            name: model-storage
+          workingDir: /workspace/components/backends/vllm
+        tolerations:
+        - effect: NoSchedule
+          key: nims/node-type
+          operator: Equal
+          value: gpu
+        volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: vllm-disagg-router-pvc
+      livenessProbe:
+        failureThreshold: 200
+        httpGet:
+          path: /live
+          port: 9090
+        periodSeconds: 5
+        timeoutSeconds: 30
+      readinessProbe:
+        failureThreshold: 200
+        httpGet:
+          path: /health
+          port: 9090
+        periodSeconds: 10
+        timeoutSeconds: 30
+      replicas: 2
+      resources:
+        limits:
+          cpu: '10'
+          gpu: '1'
+          memory: 20Gi
+        requests:
+          cpu: '10'
+          gpu: '1'
+          memory: 20Gi

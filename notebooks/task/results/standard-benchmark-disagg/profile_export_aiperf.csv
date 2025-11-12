@@ -1,0 +1,25 @@
+Metric,avg,min,max,p1,p5,p10,p25,p50,p75,p90,p95,p99,std
+Input Sequence Length (tokens),366.95,250.00,500.00,250.00,250.00,250.00,250.00,250.00,500.00,500.00,500.00,500.00,124.74
+Inter Chunk Latency (ms),5.42,3.34,16.31,4.79,5.14,5.20,5.30,5.41,5.52,5.64,5.73,6.14,0.28
+Inter Token Latency (ms),5.43,5.32,5.64,5.33,5.34,5.35,5.38,5.44,5.48,5.50,5.52,5.59,0.06
+Output Sequence Length (tokens),72.61,48.00,101.00,49.00,49.00,49.00,49.00,49.00,99.00,99.00,99.00,99.00,24.97
+Output Token Count (tokens),72.61,48.00,101.00,49.00,49.00,49.00,49.00,49.00,99.00,99.00,99.00,99.00,24.97
+Output Token Throughput Per User (tokens/sec/user),184.03,177.44,188.10,178.81,181.06,181.81,182.64,183.77,185.80,186.83,187.27,187.79,2.06
+Request Latency (ms),530.98,334.80,3535.92,340.66,342.10,343.50,346.97,357.52,654.51,667.13,671.69,1561.08,331.31
+Time to First Output Token (ms),142.88,71.90,3164.97,79.51,80.29,81.30,83.96,92.40,127.38,137.33,138.85,1110.35,291.43
+Time to First Token (ms),142.88,71.90,3164.97,79.51,80.29,81.30,83.96,92.40,127.38,137.33,138.85,1110.35,291.43
+Time to Second Token (ms),4.92,3.34,6.50,3.73,4.27,4.43,4.71,4.94,5.20,5.35,5.45,5.61,0.39
+
+Metric,Value
+Benchmark Duration (sec),60.54
+Maximum Response Timestamp (ns),1762911647381453056.00
+Minimum Request Timestamp (ns),1762911586845597952.00
+Output Token Throughput (tokens/sec),279.47
+Request Count,233.00
+Request Throughput (requests/sec),3.85
+Total Input Sequence Length (tokens),85500.00
+Total Output Sequence Length (tokens),16918.00
+Total Output Tokens (tokens),16918.00
+
+
+Endpoint,GPU_Index,GPU_Name,GPU_UUID,Metric,avg,min,max,p1,p5,p10,p25,p50,p75,p90,p95,p99,std

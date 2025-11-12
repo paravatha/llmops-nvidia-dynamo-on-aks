@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: dynamo-frontend-metrics
+  namespace: prometheus
+  labels:
+    app: dynamo-frontend-metrics
+    release: kube-prometheus-stack   # This value can differ according to your Prometheus installation.
+spec:
+  selector:
+    matchLabels:
+      nvidia.com/dynamo-component: "Frontend"
+  podMetricsEndpoints:
+    - port: http
+      path: /metrics
+      interval: 5s
+  namespaceSelector:
+    matchNames:
+      - dynamo-cloud
