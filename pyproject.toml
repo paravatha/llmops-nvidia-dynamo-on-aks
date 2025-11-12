@@ -1,0 +1,48 @@
+# Poetry-specific settings.
+[project]
+name = "python-template-repo"
+version = "0.1.0"
+description = "Python Template Repository"
+requires-python = ">=3.12.0, <3.13.0"
+readme = "README.md"
+authors = []
+
+dependencies = [
+    "pydantic>=2.11.9,<3",
+    "python-dateutil>=2.9.0,<3",
+    "pytest-dotenv>=0.5.2,<0.6",
+]
+
+# Development dependencies of the project.
+[dependency-groups]
+dev = [
+    "pytest~=8.4.2",
+    "pytest-mock~=3.15.1",
+    "pytest-dotenv~=0.5.2",
+    "pre-commit~=4.3.0",
+    "ruff~=0.13.1",
+    "pyright~=1.1.405",
+    "pytest-asyncio~=1.2.0",
+    "pytest-cov~=7.0.0",
+    "setuptools~=80.9.0",
+    "nbstripout~=0.8.1",
+
+]
+
+
+[tool.uv]
+package = false
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Ruff section configures the Ruff linter and formatter.
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "TID"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.pyright]
+typeCheckingMode = "basic"
